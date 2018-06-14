@@ -10,13 +10,13 @@
  */
 
 // Can the user view the AdminCP?
-if($user->isLoggedIn()){
-	if(!$user->canViewACP()){
-		// No
-		Redirect::to(URL::build('/'));
-		die();
-	} else {
-		// Check the user has re-authenticated
+if ($user->isLoggedIn()) {
+    if(!$user->canViewACP()){
+        // No
+        Redirect::to(URL::build('/'));
+        die();
+    } else {
+        // Check the user has re-authenticated
 		if(!$user->isAdmLoggedIn()){
 			// They haven't, do so now
 			Redirect::to(URL::build('/admin/auth'));
@@ -28,17 +28,15 @@ if($user->isLoggedIn()){
 	Redirect::to(URL::build('/login'));
 	die();
 }
- 
- 
+
 $page = 'admin';
 $admin_page = 'modulerepo';
 
 $success = false;
 $message = "";
 
-if(Input::exists()){
-	if(Token::check(Input::get('token'))){
-		//$cache->setCache('default_template');
+if (Input::exists()) {
+	if (Token::check(Input::get('token'))) {
 		$repositoryServer = "";
 		if (isset($_POST['repositoryServer'])) {
 			$repositoryServer = $_POST['repositoryServer'];
@@ -68,13 +66,15 @@ if(Input::exists()){
             $infoJsonRaw = curl_exec($ch);
             $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if (curl_errno($ch)) {
-                echo 'error:' . curl_error($ch);
+                die('error:' . curl_error($ch));
             }
-		    curl_close($ch);
 		    if ($httpcode != "200") {
+                curl_close($ch);
+                // Set the message
 		        $success = false;
                 $message = $modulerepo_language->get('language', 'module_fetch_failed');
 		    } else {
+                curl_close($ch);
 		        $start = strpos($infoJsonRaw, "\r\n\r\n") + 4;
                 $infoJsonRaw = substr($infoJsonRaw, $start, strlen($infoJsonRaw) - $start);
                 $repositoryModuleInfo = json_decode($infoJsonRaw, true);
@@ -83,22 +83,38 @@ if(Input::exists()){
     		    } else {
     		        $url = $url_proto . "://" . $repositoryServer . "/modules/" . $moduleName . "/" . $moduleVersion . ".zip";
     		    }
-    		    // If we are not confirming
+    		    // If we are not confirming the module to install
     		    if (isset($_POST['confirm_submit'])) {
     		        $messageVersion = $moduleVersion;
     		        if ($moduleVersion == "latest") {
     		            $messageVersion = $repositoryModuleInfo['latest_version'] . " (Latest)";
     		        } else if ($moduleVersion === $repositoryModuleInfo['latest_version']) {
-    		            $messageVersion = $moduleVersion . " (Latest)";
+    		            $messageVersion = $moduleVersion . " (" . $modulerepo_language->get('language', 'latest') . ")";
     		        }
-    		        $success = true;
-    		        $messageChanges = array(
-                        '{x}' => $moduleName,
-                        '{x2}' => $messageVersion,
-                        '{x3}' => $repositoryServer
-                    );
-                    $message = str_replace(array_keys($messageChanges), array_values($messageChanges), $modulerepo_language->get('language', 'are_you_sure_install'));
-    		    } else {
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, 1);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
+                    curl_setopt($ch, CURLOPT_NOBODY, 1);
+                    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+                    $raw_file_data = curl_exec($ch);
+                    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                    if (curl_errno($ch)) {
+                        echo 'Error while getting the zip:' . curl_error($ch);
+                    }
+                    if ($httpcode == "200") {
+        		        $success = true;
+        		        $messageChanges = array(
+                            '{x}' => $moduleName,
+                            '{x2}' => $messageVersion,
+                            '{x3}' => $repositoryServer
+                        );
+                        $message = str_replace(array_keys($messageChanges), array_values($messageChanges), $modulerepo_language->get('language', 'are_you_sure_install'));
+                    } else {
+                        $success = false;
+                        $message = $modulerepo_language->get('language', 'module_version_fetch_failed');
+                    }
+                } else {
         		    // Send request and download the zip
         		    $ch = curl_init($url);
                     curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -108,7 +124,7 @@ if(Input::exists()){
                     $raw_file_data = curl_exec($ch);
                     $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                     if (curl_errno($ch)) {
-                        echo 'Error while getting the zip:' . curl_error($ch);
+                        die('Error while getting the zip:' . curl_error($ch));
                     }
                     if ($httpcode == "200") {
                         $start = strpos($raw_file_data, "\r\n\r\n") + 4;
@@ -127,7 +143,7 @@ if(Input::exists()){
                             unlink($file);
                             // Install any new modules since we just added one
                     		$directories = glob(ROOT_PATH . '/modules/*' , GLOB_ONLYDIR);
-                    
+
                     		foreach ($directories as $directory) {
                     			$folders = explode('/', $directory);
                     			// Is it already in the database
@@ -144,7 +160,7 @@ if(Input::exists()){
                     				$queries->create('modules', array(
                     					'name' => htmlspecialchars($folders[count($folders) - 1])
                     				));
-                    
+
                     				// Require installer if necessary
                     				if(file_exists(ROOT_PATH . '/modules/' . $folders[count($folders) - 1] . '/install.php')){
                     					require(ROOT_PATH . '/modules/' . $folders[count($folders) - 1] . '/install.php');
@@ -178,7 +194,7 @@ if(Input::exists()){
 
 		/*Redirect::to(URL::build('/admin/modulerepo'));
 		die();*/
-		
+
 	} else {
 		$error = $language->get('admin', 'invalid_token');
 	}
@@ -192,12 +208,12 @@ if(Input::exists()){
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-	
-	<?php 
+
+	<?php
 	$title = $language->get('admin', 'admin_cp');
-	require(ROOT_PATH . '/core/templates/admin_header.php'); 
+	require(ROOT_PATH . '/core/templates/admin_header.php');
 	?>
-  
+
   </head>
   <body>
     <?php require(ROOT_PATH . '/modules/Core/pages/admin/navbar.php'); ?>
@@ -264,9 +280,9 @@ if(Input::exists()){
                 <input type="hidden" name="moduleName" value="<?php if (isset($_POST['moduleName'])) { echo htmlspecialchars($_POST['moduleName']); } ?>" />
                 <input type="hidden" name="moduleVersion" value="<?php if (isset($_POST['moduleVersion'])) { echo htmlspecialchars($_POST['moduleVersion']); } ?>" />
 			    <input type="hidden" name="token" value="<?php echo Token::get(); ?>">
-			    <a class="btn btn-danger" href="<?php 
+			    <a class="btn btn-danger" href="<?php
 			        if (isset($_POST['update_page']) && $_POST['update_page'] == "do_redirect") {
-			            echo URL::build('/admin/update'); 
+			            echo URL::build('/admin/update');
 			        } else {
 			            echo URL::build('/admin/modulerepo');
 			        }
@@ -283,10 +299,10 @@ if(Input::exists()){
 		</div>
 	  </div>
     </div>
-	
+
 	<?php require(ROOT_PATH . '/modules/Core/pages/admin/footer.php'); ?>
 
     <?php require(ROOT_PATH . '/modules/Core/pages/admin/scripts.php'); ?>
-	
+
   </body>
 </html>

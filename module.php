@@ -11,4 +11,4 @@
 
 $module_version = '1.0.0-beta';
 $nameless_version = '2.0.0-pr4';
-$module_author = 'BrightSkyz';
+$module_author = 'BrightSkyz <a href="https://github.com/BrightSkyz/ModuleRepo">(ModuleRepo Github)</a>';

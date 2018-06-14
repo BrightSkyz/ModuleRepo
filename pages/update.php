@@ -1,8 +1,8 @@
 <?php
 /*
- *	Made by Samerton
+ *	Made by Samerton (extended by BrightSkyz)
  *  https://github.com/NamelessMC/Nameless/
- *  NamelessMC version 2.0.0-pr3
+ *  NamelessMC version 2.0.0-pr4
  *
  *  License: MIT
  *
@@ -32,7 +32,7 @@ if($user->isLoggedIn()){
 	Redirect::to(URL::build('/login'));
 	die();
 }
- 
+
 $page = 'admin';
 $admin_page = 'update';
 
@@ -67,8 +67,8 @@ curl_close($ch);
     <meta charset="<?php echo (defined('LANG_CHARSET') ? LANG_CHARSET : 'utf-8'); ?>">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-	
-	<?php 
+
+	<?php
 	$title = $language->get('admin', 'admin_cp');
 	require(ROOT_PATH . '/core/templates/admin_header.php');
 	?>
@@ -127,10 +127,10 @@ curl_close($ch);
                       $queries->update('settings', $update_needed_id, array(
                           'value' => $need_update
                       ));
-					  
+
 					  echo '<ul><li>' . str_replace('{x}', Output::getClean($current_version), $language->get('admin', 'current_version_x')) . '</li>
 					  <li>' . str_replace('{x}', Output::getClean($update_check->new_version), $language->get('admin', 'new_version_x')) . '</li></ul>';
-					  
+
 					  echo '<h4>' . $language->get('admin', 'instructions') . '</h4>';
 					  // Get instructions
 					  $ch = curl_init();
@@ -149,9 +149,9 @@ curl_close($ch);
 					  }
 
 					  curl_close($ch);
-					  
+
 					  echo Output::getPurified($instructions);
-					  
+
 					  echo '<hr />';
 
                       echo '<a href="https://namelessmc.com/nl_core/nl2/updates/' . str_replace(array('.', '-'), '', Output::getClean($update_check->new_version)) . '.zip" class="btn btn-primary">' . $language->get('admin', 'download') . '</a> ';
@@ -174,15 +174,15 @@ curl_close($ch);
     		  if(Session::exists('admin_modules')){
     			  echo Session::flash('admin_modules');
     		  }
-    
+
     		  // Get all modules
     		  $modules = $queries->getWhere('modules', array('id', '<>', 0));
-    
+
     		  foreach($modules as $module){
     			  if(isset($module_author)) unset($module_author);
     			  if(isset($module_version)) unset($module_version);
     			  if(isset($nameless_version)) unset($nameless_version);
-    
+
     			  if(file_exists(ROOT_PATH . '/modules/' . $module->name . '/module.php')) require(ROOT_PATH . '/modules/' . $module->name . '/module.php');
     		  ?>
     		  <div class="row">
@@ -253,11 +253,11 @@ curl_close($ch);
 		</div>
 	  </div>
     </div>
-	
-	<?php 
+
+	<?php
 	require(ROOT_PATH . '/modules/Core/pages/admin/footer.php');
 	require(ROOT_PATH . '/modules/Core/pages/admin/scripts.php');
 	?>
-	
+
   </body>
 </html>

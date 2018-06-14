@@ -1,8 +1,8 @@
 <?php
 /*
- *	Made by Samerton
+ *	Made by Samerton (extended by BrightSkyz)
  *  https://github.com/NamelessMC/Nameless/
- *  NamelessMC version 2.0.0-pr3
+ *  NamelessMC version 2.0.0-pr4
  *
  *  License: MIT
  *
@@ -76,7 +76,7 @@ if(isset($_GET['action'])){
 		));
 
 		Log::getInstance()->log(Log::Action('admin/module/enable'));
-		
+
 		// Get module name
 		$name = $queries->getWhere('modules', array('id', '=', $_GET['m']));
 		$name = htmlspecialchars($name[0]->name);
@@ -172,7 +172,7 @@ if(isset($_GET['action'])){
 
 		// Store
 		$cache->store('enabled_modules', $modules);
-		
+
 		// Delete folder containing the module
 		$dir = ROOT_PATH . '/modules/' . $name;
         $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -185,10 +185,10 @@ if(isset($_GET['action'])){
             }
         }
         rmdir($dir);
-        
+
         // Delete module from database
         $queries->delete('modules', array('id', '=', $_GET['m']));
-		
+
 		// Reload list of installed modules because we just removed one from file system
 	    $directories = glob(ROOT_PATH . '/modules/*' , GLOB_ONLYDIR);
 		foreach($directories as $directory){

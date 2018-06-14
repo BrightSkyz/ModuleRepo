@@ -11,16 +11,17 @@
 
 // Which version of NamelessMC is this language file updated to?
 $language_version = '2.0.0-pr4';
- 
+
 $language = array(
 	/*
 	 *  General terms
-	 */ 
+	 */
 	'modulerepo_title' => 'ModuleRepo',
 	'module_link' => 'Module Link',
 	'delete' => 'Delete',
 	'update' => 'Update',
 	'error' => 'Error',
+    'latest' => 'Latest',
 	'no_update_available' => 'No update available.',
 	'cancel_install' => 'Cancel Install',
 	'install_module' => 'Install Module',
@@ -34,5 +35,6 @@ $language = array(
 	'module_updated_via_modulerepo' => 'The module was updated successfully via ModuleRepo.',
 	'zip_extraction_failed' => 'The zip extraction failed.',
 	'zip_download_failed' => 'The zip download failed. Does the module exist?',
-	'module_fetch_failed' => 'Fetching the module failed. Does the module exist?'
+	'module_fetch_failed' => 'Fetching the module failed. Does the module exist?',
+    'module_version_fetch_failed' => 'ModuleRepo could not find that version of the module, please check your version and try again.'
 );
