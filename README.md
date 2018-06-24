@@ -6,6 +6,6 @@ ModuleRepo is a NamelessMC module that allows people to install modules into Nam
 ### Installing Modules
 Some people have trouble finding download links to modules or have trouble figuring out how to install them.
 ### Updating Modules
-Others can also use ModuleRepo to make sure their modules are up to date by checking AdminCP -> Modules.*
+Others can also use ModuleRepo to make sure their modules are up to date by checking AdminCP -> Update.*
 
 <sub>* In order to check and see if the module is up-to-date, you need to install the module via ModuleRepo</sub>
